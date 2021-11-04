@@ -1,0 +1,23 @@
+{
+  "name": "bdsmoudles",
+  "version": "1.0.0",
+  "description": "BDS模块地址映射,WEB查询服务",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cngege/BDSMoudles.git"
+  },
+  "author": "cngege",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cngege/BDSMoudles/issues"
+  },
+  "homepage": "https://github.com/cngege/BDSMoudles#readme",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "level": "^7.0.1"
+  }
+}
