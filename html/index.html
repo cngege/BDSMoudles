@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>pdb.txt上传</title>
+  </head>
+  <body>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <h2>符号地址上传</h2>
+        Token:<input type="password" name="token"> <br/>
+        版本(与BDS对应):<input type="text" name="version" value=""> <br/>
+        文件:<input type="file" name="pdb"> <br/>
+        <input type="submit" value="提交">
+    </form>
+  </body>
+</html>
