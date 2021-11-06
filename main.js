@@ -75,19 +75,18 @@ app.get("/get",(req, resp, next)=>{
 		if(setup.versions[i] == version && key!= ''){
 			//找到了这个数据库，读取并返回
  			if(leveldb[version] == null)
-				leveldb[version] = level(setup.dbpath+"//"+version);
-			/*leveldb[version].put("??_EBottleItem@@UEAAPEAXI@Z","0x003E96F0",(e)=>{
-				if(e)console.log(e);
-			})*/
+				leveldb[version] = level(path.join(setup.dbpath,version));
 			leveldb[version].get(key,(err,v)=>{
 				if(err){
 					resp.json({code:1,message:"没有找到"+key,value:"",values:{},error:err.toString()})
-					return;
 				}
-				resp.json({code:200,message:"success",value:v,values:{},error:""})
+				else{
+					resp.json({code:200,message:"success",value:v,values:{},error:""})
+				}
+				leveldb[version].close();
+				leveldb[version] = null;
 			})
-			leveldb[version].close();
-			leveldb[version] = null;
+
 			return;
 		}
 	}
@@ -113,14 +112,8 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 			}
 			if(leveldb[version] == null){
 				//这里开始解析上传的文件写入数据库
-				let errcount = WriteDB(file,version);
-				if(errcount == -1){
-					resp.send({code:24,message:"解析上传文件写入数据库时出错",error:""});
-				}else if(errcount == 0){
-					resp.send({code:200,message:"success",error:""});
-				}else{
-					resp.send({code:24,message:"有"+errcount+"个值写入失败",error:""});
-				}
+				WriteDBList(file,version);
+				resp.send({code:200,message:"success",error:""});
 				fs.unlink(path.join(__dirname,file.path),error=>{})
 			}else{
 				resp.send({code:23,message:"此版本可能已经有一个上传任务了",error:""});
@@ -148,32 +141,41 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 	*/
 })
 
-function WriteDB(file,version){
-	var path = file.path;
-	let errorcount = 0;
-	leveldb[version] = level(setup.dbpath+"//"+version);
+async function WriteDBList(file,version){
+	var pdbpath = file.path;
+	leveldb[version] = level(path.join(setup.dbpath,version));
+	let ops = [];
 	
-	let data = fs.readFileSync(path).toString();
-	let datas = data.split("\n");
+	let data = fs.readFileSync(pdbpath).toString();
+	let datas = data.split("\r\n");
 	for(i=0;i<datas.length;i++){
 		//这行是要找的行
 		if(datas[i].indexOf("S_PUB32:") == 0){
 			let moudles = datas[i].split(" ");
 			let address = moudles[1].substring(moudles[1].indexOf(":")+1,moudles[1].indexOf("]"));
-			
-			leveldb[version].put(moudles[4].toString(),"0x"+address,(e)=>{
-				if(e){
-					errorcount++;
-				}
-			})
+			let item = {type:"put",key:moudles[4].toString(),value:"0x"+address};
+			ops.push(item);
+			//await leveldb[version].put(moudles[4].toString(),"0x"+address);
 		}
 	}
+	/*
+	leveldb[version].batch(ops,function(err){
+		if(err){
+			console.log("原子写入错误:{0}",err);
+		}
+	})
+	*/
+	//console.log(JSON.stringify(ops,null,2));
+	var err = await leveldb[version].batch(ops);
+	if(err){
+		console.log("原子写入错误:{0}",err);
+	}
 	setup.versions.push(version);
-	fs.writeFile(__dirname+"/setup.json",JSON.stringify(setup,null,2),{encoding:"utf-8"},(err)=>{})
-	//leveldb[version].close();
-	return errorcount;
+	fs.writeFileSync(__dirname+"/setup.json",JSON.stringify(setup,null,2),{encoding:"utf-8"})
+	leveldb[version].close();
+	leveldb[version]=null;
+	//console.log(await leveldb[version].get("jsdebuggerexception"),err=>{});
 }
-
 
 
 http.listen(+1234);
