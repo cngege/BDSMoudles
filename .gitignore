@@ -78,6 +78,7 @@ typings/
 #默认数据库所在目录
 /db
 /upload
+/tmp
 
 /pdb.txt
 /setup.json

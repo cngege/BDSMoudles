@@ -152,10 +152,16 @@ async function WriteDBList(file,version){
 		//这行是要找的行
 		if(datas[i].indexOf("S_PUB32:") == 0){
 			let moudles = datas[i].split(" ");
-			let address = moudles[1].substring(moudles[1].indexOf(":")+1,moudles[1].indexOf("]"));
-			let item = {type:"put",key:moudles[4].toString(),value:"0x"+address};
+			let address = "0x" + moudles[1].substring(moudles[1].indexOf(":")+1,moudles[1].indexOf("]"));
+			let intaddress = parseInt(address);
+			if(moudles[3] == "00000002,"){
+				intaddress = intaddress + 0x1000;
+			}else if(moudles[3] == "00000000,"){
+				intaddress = intaddress + 0x19E9000;
+			}
+			let item = {type:"put",key:moudles[4].toString(),value:"0x"+intaddress.toString(16)};
 			ops.push(item);
-			//await leveldb[version].put(moudles[4].toString(),"0x"+address);
+			//await leveldb[version].put(moudles[4].toString(),address);
 		}
 	}
 	/*
