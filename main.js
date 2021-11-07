@@ -91,7 +91,7 @@ app.get("/get",(req, resp, next)=>{
 		}
 	}
 	//到这里就是没找到这个版本
-	resp.json({code:0,message:"没有"+version+"版本的数据库或key值为空",value:"",values:{},error:""})
+	resp.json({code:0,message:"没有"+version+"版本的数据库或key值为空",value:"",values:{},error:{"versionlist":setup.versions}})
 })
 
 app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
@@ -175,6 +175,7 @@ async function WriteDBList(file,version){
 	leveldb[version].close();
 	leveldb[version]=null;
 	//console.log(await leveldb[version].get("jsdebuggerexception"),err=>{});
+	fs.unlink(path.join(__dirname,file.path),error=>{})
 }
 
 
