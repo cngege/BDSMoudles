@@ -1,11 +1,14 @@
 const express = require("express")
 const app = express();
-const http = require('http').Server(app);
+const http = require('http');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const level = require('level');
 const multer  = require('multer');
+const request = require('request');
+const server = http.Server(app);
+//const os = require('os');
 
 let setup = {};
 
@@ -46,6 +49,9 @@ fs.exists(__dirname+"/setup.json",exists=>{
 			return;
 		}
 		setup = JSON.parse(data);
+		fs.exists(setup.dbpath,exists=>{
+			if(!exists) fs.mkdirSync(setup.dbpath);
+		})
 	})
 })
 
@@ -58,6 +64,7 @@ fs.exists(__dirname+"/setup.json",exists=>{
 * 22 - 上传的库已存在
 * 23 - 此版本可能已经有一个上传任务了
 * 24 - 解析上传文件写入数据库时出错
+* 25 - 下载出错
 */
 app.get("/:static?/*",(req, resp, next)=>{
 	const {static = ""} = req.params;
@@ -95,63 +102,76 @@ app.get("/get",(req, resp, next)=>{
 })
 
 app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
-	const { token = '',version = ''} = req.body;
-	var file = req.file;
-	if(token == setup.token){
+	const { token = '',version = '', type = "", url = ""} = req.body;
+	if(token != setup.token){
+		resp.send({code:20,message:"token error",error:""});
+		return;
+	}
+	if(version == "" || type == ""){
+		resp.send({code:21,message:"某个必填参数未赋值",error:""});
+		return;
+	}
+	for(i=0;i<setup.versions.length;i++){
+		if(version == setup.versions[i]){
+			//表示存在
+			resp.send({code:22,message:"database "+version+" exists",error:""});
+			return;
+		}
+	}
+	if(leveldb[version] != null){
+		resp.send({code:23,message:"此版本可能已经有一个上传或下载任务了",error:""});
+		return;
+	}
+	
+	if(type == "upload"){
+		var file = req.file;
 		if(file.originalname == "pdb.txt"){
-			//先判断这个库是否存在
-			if(version == ""){
-				resp.send({code:21,message:"version is null",error:""});
-			}
-			for(i=0;i<setup.versions.length;i++){
-				if(version == setup.versions[i]){
-					//表示存在
-					resp.send({code:22,message:"database "+version+" exists",error:""});
-					return;
-				}
-			}
-			if(leveldb[version] == null){
-				//这里开始解析上传的文件写入数据库
-				WriteDBList(file,version);
-				resp.send({code:200,message:"success",error:""});
-				fs.unlink(path.join(__dirname,file.path),error=>{})
-			}else{
-				resp.send({code:23,message:"此版本可能已经有一个上传任务了",error:""});
-			}
-			
+			//这里开始解析上传的文件写入数据库
+			let filestr = fs.readFileSync(file.path).toString();
+			WriteDBList(filestr,version);
+			resp.send({code:200,message:"success",error:""});
+			fs.unlink(path.join(__dirname,file.path),error=>{})
 		}
 		else{
 			resp.send({code:21,message:file.originalname+" error",error:""});
 		}
+		/*
+		{
+		  fieldname: 'pdb',
+		  originalname: '2.txt',
+		  encoding: '7bit',
+		  mimetype: 'text/plain',
+		  destination: 'upload/',
+		  filename: 'c31e796a8ce5b322bfb7268482d1807e',
+		  path: 'upload\\c31e796a8ce5b322bfb7268482d1807e',
+		  size: 13
+		}
+		*/
+	}else if(type=="download"){
+		if(url){
+			var savename = new Date().getTime();
+			request.get(url,function(error,res,body){
+				if(!error&&res.statusCode==200){
+					WriteDBList(body,version);
+					resp.send({code:200,message:"success",error:""});
+				}else{
+					resp.send({code:25,message:`下载${url}时出错`,error:error});
+				}
+			})
+		}else{
+			resp.send({code:21,message:"某个必填参数未赋值",error:""});
+		}
 	}
-	else{
-		resp.send({code:20,message:"token error",error:""});
-	}
-	/*
-	{
-	  fieldname: 'pdb',
-	  originalname: '2.txt',
-	  encoding: '7bit',
-	  mimetype: 'text/plain',
-	  destination: 'upload/',
-	  filename: 'c31e796a8ce5b322bfb7268482d1807e',
-	  path: 'upload\\c31e796a8ce5b322bfb7268482d1807e',
-	  size: 13
-	}
-	*/
 })
 
 async function WriteDBList(file,version){
-	var pdbpath = file.path;
 	leveldb[version] = level(path.join(setup.dbpath,version));
 	let ops = [];
-	
-	let data = fs.readFileSync(pdbpath).toString();
-	let datas = data.split("\r\n");
+	let datas = file.split("\n");//\r\n
 	for(i=0;i<datas.length;i++){
 		//这行是要找的行
 		if(datas[i].indexOf("S_PUB32:") == 0){
-			let moudles = datas[i].split(" ");
+			let moudles = datas[i].replace("\r","").split(" ");
 			let address = "0x" + moudles[1].substring(moudles[1].indexOf(":")+1,moudles[1].indexOf("]"));
 			let intaddress = parseInt(address);
 			if(moudles[3] == "00000002,"){
@@ -181,8 +201,8 @@ async function WriteDBList(file,version){
 	leveldb[version].close();
 	leveldb[version]=null;
 	//console.log(await leveldb[version].get("jsdebuggerexception"),err=>{});
-	fs.unlink(path.join(__dirname,file.path),error=>{})
+	//fs.unlink(path.join(__dirname,file.path),error=>{})
 }
 
 
-http.listen(+1234);
+server.listen(+1234);

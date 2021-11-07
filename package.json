@@ -19,6 +19,7 @@
   "devDependencies": {
     "express": "^4.17.1",
     "level": "^7.0.1",
-    "multer": "^1.4.3"
+    "multer": "^1.4.3",
+    "request": "^2.88.2"
   }
 }
