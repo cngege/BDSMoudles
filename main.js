@@ -58,7 +58,8 @@ fs.exists(__dirname+"/setup.json",exists=>{
 /*回传：code
 * 200 - 成功
 * 0 - 没有此版本
-* 1 - 数据库中没有此key
+* 1 - 数据库中没有此key 或者请求的多个key至少有一个未找到
+* 2 - 获取key时出现其他错误
 * 20 - 上传时token验证失败
 * 21 - 上传文件类型错误或参数错误
 * 22 - 上传的库已存在
@@ -77,28 +78,54 @@ app.get("/:static?/*",(req, resp, next)=>{
 app.get("/get",(req, resp, next)=>{
 	//判断版本找对应的数据库
 	//判断key找对应的值
-	let {version,key = ''} = req.query;
+	let {version,key = '',keys = ''} = req.query;
+	//key优先，有key则不会看keys
 	for(i=0;i<setup.versions.length;i++){
-		if(setup.versions[i] == version && key!= ''){
+		if(setup.versions[i] == version){
 			//找到了这个数据库，读取并返回
- 			if(leveldb[version] == null)
+ 			if(leveldb[version] == null){
 				leveldb[version] = level(path.join(setup.dbpath,version));
-			leveldb[version].get(key,(err,v)=>{
-				if(err){
-					resp.json({code:1,message:"没有找到"+key,value:"",values:{},error:err.toString()})
-				}
-				else{
-					resp.json({code:200,message:"success",value:v,values:{},error:""})
-				}
-				leveldb[version].close();
-				leveldb[version] = null;
-			})
-
-			return;
+			}
+			if(key!= ''){
+				leveldb[version].get(key,(err,v)=>{
+					if(err){
+						if(err.notFound)
+							resp.json({code:1,message:"没有找到"+key,value:"",values:[],error:err.toString()})
+						else
+							resp.json({code:2,message:"获取key时出现其他错误",value:"",values:[],error:err.toString()})
+					}
+					else{
+						resp.json({code:200,message:"success",value:v,values:[],error:""})
+					}
+					leveldb[version].close();
+					leveldb[version] = null;
+				})
+				return;
+			}
+			else if(keys != '' && keys.indexOf(",") != -1){		//请求多个key
+				let keys_array = keys.split(",");
+				leveldb[version].getMany(keys_array,function(err,value){
+					if(err){
+						if(err.notFound)
+							resp.json({code:1,message:"没有找到"+key,value:"",values:[],error:err.toString()})
+						else
+							resp.json({code:2,message:"获取key时出现其他错误",value:"",values:[],error:err.toString()})
+					}else{
+						for(i in value){
+							if(value[i] == undefined){
+								resp.json({code:1,message:`第${i}个索引值没有找到`,value:"",values:value,error:""})
+								return;
+							}
+						}
+						resp.json({code:200,message:"success",value:"",values:value,error:""});
+					}
+				})
+				return;
+			}
 		}
 	}
 	//到这里就是没找到这个版本
-	resp.json({code:0,message:"没有"+version+"版本的数据库或key值为空",value:"",values:{},error:{"versionlist":setup.versions}})
+	resp.json({code:0,message:"没有"+version+"版本的数据库或key值参数出现问题",value:"",values:[],error:{"versionlist":setup.versions}})
 })
 
 app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
