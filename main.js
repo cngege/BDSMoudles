@@ -14,6 +14,7 @@ let setup = {};
 
 let upload = multer({ dest: 'upload/' });
 let leveldb = {};
+let ticktime = {};	//version: time:要关闭的时间刻，id=0
 
 //检查相关文件夹是否存在以及创建文件夹
 fs.exists('upload/',exists=>{
@@ -84,8 +85,23 @@ app.get("/get",(req, resp, next)=>{
 		if(setup.versions[i] == version){
 			//找到了这个数据库，读取并返回
  			if(leveldb[version] == null){
+				// 30没有请求 则关闭数据库
+				ticktime[version] = {};
+				ticktime[version]['time'] = Date.now() + (30 * 1000);
+				ticktime[version]['id'] = setInterval(function(){
+					if(Date.now() > ticktime[version]['time']){
+						leveldb[version].close();
+						leveldb[version] = null;
+						clearInterval(ticktime[version]['id']);
+						delete ticktime[version];
+					}
+				},1000)
 				leveldb[version] = level(path.join(setup.dbpath,version));
 			}
+			else{
+				ticktime[version]['time'] = Date.now() + (30 * 1000);
+			}
+			
 			if(key!= ''){
 				leveldb[version].get(key,(err,v)=>{
 					if(err){
@@ -97,8 +113,8 @@ app.get("/get",(req, resp, next)=>{
 					else{
 						resp.json({code:200,message:"success",value:v,values:[],error:""})
 					}
-					leveldb[version].close();
-					leveldb[version] = null;
+					//leveldb[version].close();
+					//leveldb[version] = null;
 				})
 				return;
 			}
