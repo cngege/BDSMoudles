@@ -78,7 +78,7 @@ namespace BDSAddrApi
                 }
                 if (address.code == 200)
                 {
-                    if (address.value != null)
+                    if (!String.IsNullOrEmpty(address.value))
                     {
                         addrs = new string[] { address.value };
                     }
