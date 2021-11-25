@@ -170,17 +170,17 @@ namespace BDSAddrApi
 
     class Apilist
     {
-        public string url;
-        public string manager;
-        public string home;
+        public string url { get; set; }
+        public string manager { get; set; }
+        public string home { get; set; }
     }
 
     class BackAddrData
     {
-        public int code;
-        public string message;
-        public string value;
-        public List<string> values;
-        public object error;
+        public int code { get; set; }
+        public string message { get; set; }
+        public string value { get; set; }
+        public List<string> values { get; set; }
+        public object error { get; set; }
     }
 }
