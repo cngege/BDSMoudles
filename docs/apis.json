@@ -3,6 +3,10 @@
 		"url": "http://cngege.f3322.net:6789/get",
 		"manager" : "cngege/muzili",
 		"home": "https://github.com/cngege/BDSMoudles.git"
+	},
+	{
+		"url": "http://cn-zj-sx-lt.c5mc.cn:12321/get",
+		"manager": "cngege/muzili",
+		"home": "https://github.com/cngege/BDSMoudles.git"
 	}
-	
 ]
