@@ -24,7 +24,7 @@ fs.exists('upload/',exists=>{
 fs.exists(__dirname+"/setup.json",exists=>{
 	//文件不存在
 	if(!exists){
-		setup.token = Math.ceil(Math.random()*100)+Date.now();
+		setup.token = (Math.ceil(Math.random()*100)+Date.now()).toString();
 		setup.dbpath = path.join(__dirname,'db');
 		fs.exists(setup.dbpath,exists=>{
 			if(!exists) fs.mkdirSync(setup.dbpath);
