@@ -3,18 +3,22 @@
 
 ## 这是什么:
 一个使用NodeJS编写的 用于在线查询MCPE BDS Windows服务端符号地址的服务。
+
 BDS插件 - 向云端请求要Hook函数的地址 - 使用此地址Hook函数 - 完成插件
+
 BDS服务端更新后插件不需要更新
 
 ## 为什么要做这个:
-官方支持 Minecraft 基岩版服务器搭建，但是却无法使用插件，包括功能性插件及反作弊插件。于是社区出现了以Hook 为原理的服务端插件模组, 从官方提供的`bedrock_server.pdb`调试文件快速找出函数的偏移地址，以进行定位Hook，从而实现插件功能。
+官方支持 Minecraft 基岩版服务器搭建，但是却无法使用插件，包括功能性插件及反作弊插件。于是社区出现了以Hook 为原理的服务端插件模组,从官方提供的`bedrock_server.pdb`调试文件快速找出函数的偏移地址，以进行定位Hook，从而实现插件功能。
+
 但这个方法最大的局限性就是当服务端更新后,函数的地址会出现变动,这就需要开发者手动更新插件，而往往除了要Hook的符号地址需要修改，其他地方都无需变动。试想一位开发者开发了十几二十个插件，每一次服务端更新的时候他都要不得不更新自己的插件，而插件的功能却无变动。
+
 如果插件的被加载的时候，向云端获取当前版本的某些符号地址,使用该地址进行Hook程序,便不需要开发者重新编译修改自己的插件，然后再提交发布。
+
 为了减轻开发者的开发负担，也旨在促进BDS社区插件发展,我做了这个服务端程序
 
 ## 为什么该服务使用NodeJS编写:
 最大的原因是NodeJS的平台兼容性,方便在各大平台、架构的服务端部署 Windows Linex Mac Docker容器 等
-
 
 ## 我该怎么使用这个接口:
 首先你需要三个信息
@@ -25,10 +29,15 @@ BDS服务端更新后插件不需要更新
 
 将你的接口后面加上get，比如:`http://cngege.f3322.net:6789/get`,使用参数`version`指定要查询的版本,使用参数`key`查询单个符号地址，或者使用参数`keys`查询多个符号地址,每个符号地址使用`,`隔开
 比如:
+
 `http://cngege.f3322.net:6789/get?version=1.18.0.02&key=??_EBottleItem@@UEAAPEAXI@Z`
+
 `http://cngege.f3322.net:6789/get?version=1.18.0.02&keys=??_EBottleItem@@UEAAPEAXI@Z,??_EKnockbackRoarGoal@@UEAAPEAXI@Z`
+
 返回code 为 200时查询成功, 返回其他值则看 message 以定位是什么错误
+
 key查询时返回的结果在value中,keys查询返回的结果在values中
+
 **code返回的值表示的含义**:
 
 ```javascript
@@ -48,7 +57,9 @@ key查询时返回的结果在value中,keys查询返回的结果在values中
 
 ### 我的插件怎么使用这个服务
 如果你的插件是CSR插件,可直接将 `CSCode`文件夹复制到你的项目中，并查看自述文件:[CSCode_BDSAddressWebAPI.cs.md](https://github.com/cngege/BDSMoudles/blob/main/CSCode_BDSAddressWebAPI.cs.md) 以快速使用编写好的接口
+
 如果你的插件是其他语言编写的插件,也可以参考`CSCode/BDSAddressWebAPI.cs`文件了解插件使用接口的流程
+
 **流程**:
 1. 读取 `https://cngege.github.io/BDSMoudles/apis.json`,并反序列化,获取所有接口
 2. 使用获取到的接口查询符号地址,如果接口可用,可将接口保存在本地,下次直接使用这个接口
@@ -57,6 +68,7 @@ key查询时返回的结果在value中,keys查询返回的结果在values中
 
 
 ## 我怎么在自己的服务器上部署这个服务:
+
 ### 部署Node
 * 在你的服务器上安装Nodejs
 * 克隆这个仓库到本地
