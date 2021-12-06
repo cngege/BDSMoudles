@@ -12,13 +12,13 @@ const server = http.Server(app);
 
 let setup = {};
 
-let upload = multer({ dest: 'upload/' });
+let upload = multer({ dest:__dirname + '/upload/' });
 let leveldb = {};
 let ticktime = {};	//version: time:要关闭的时间刻，id=0
 
 //检查相关文件夹是否存在以及创建文件夹
-fs.exists('upload/',exists=>{
-	if(!exists) fs.mkdirSync('upload/');
+fs.exists(__dirname + '/upload/',exists=>{
+	if(!exists) fs.mkdirSync(__dirname + 'upload/');
 })
 
 fs.exists(__dirname+"/setup.json",exists=>{
@@ -174,7 +174,7 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 			let filestr = fs.readFileSync(file.path).toString();
 			WriteDBList(filestr,version);
 			resp.send({code:200,message:"success",error:""});
-			fs.unlink(path.join(__dirname,file.path),error=>{})
+			fs.unlink(file.path,error=>{})
 		}
 		else{
 			resp.send({code:21,message:file.originalname+" error",error:""});
@@ -187,7 +187,7 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 		  mimetype: 'text/plain',
 		  destination: 'upload/',
 		  filename: 'c31e796a8ce5b322bfb7268482d1807e',
-		  path: 'upload\\c31e796a8ce5b322bfb7268482d1807e',
+		  path: 'upload\\c31e796a8ce5b322bfb7268482d1807e', //Windows绝对路径Linux未知
 		  size: 13
 		}
 		*/
