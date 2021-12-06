@@ -1,7 +1,5 @@
 ﻿# CSCode/BDSAddressWebAPI.cs
 
-标签（空格分隔）： C# CSR BDS
-
 ---
 **对远程或者符号地址的url api进行封装**
 
@@ -38,9 +36,10 @@
  * 给你的项目引用 .NET库中的 `System.Web.Extensions.dll` 不必勾选复制到本地
  * 在你自己的代码中引入命名空间 `BDSAddrApi`
  * 使用静态方法 `BDSAddressWebAPI.GetAddress_Try` 查询地址
+ * 使用 `Convert.ToInt32(address[0], 16);` 将查询到的字符串地址转为`int`类型
 
 ## BDSAddressWebAPI.GetAddress_Try
-该方法有三个重构 依次讲解
+该方法有两个重构 依次讲解
 ```CSharp
    bool GetAddress_Try(string VERSION, string[] symbols,out string[] addrs)
    //string VERSION :当前服务端程序的版本,可传入CSR的 MCCSAPI.VERSION
@@ -68,4 +67,5 @@
    //而GitHub时常访问失败所以通过开启这个选项，将可用的api保存到本地,
    //直到这个API访问失败再从apis.json找到可用的api使用并再次保存在本地
    //option tmppath string(plugins\\BDSAddressApi\\),相关信息保存在本地时的路径
+   //option symbol_save bool(默认true) : 远程获取地址后将保存在本地,本地已存在要请求的地址的话将直接尝试从本地加载,不走网络
 ```

@@ -67,6 +67,7 @@ fs.exists(__dirname+"/setup.json",exists=>{
 * 23 - 此版本可能已经有一个上传任务了
 * 24 - 解析上传文件写入数据库时出错
 * 25 - 下载出错
+* 26 - 缺少某些必要的文件
 */
 app.get("/:static?/*",(req, resp, next)=>{
 	const {static = ""} = req.params;
@@ -204,6 +205,17 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 		}else{
 			resp.send({code:21,message:"某个必填参数未赋值",error:""});
 		}
+	}else if(type=="checkfile"){		//方案三 其他方式上传-解析
+		fs.exists(__dirname+"/upload/pdb.txt",exists=>{
+			if(!exists){
+				resp.send({code:26,message:"文件{/upload/pdb.txt}不存在",error:""});
+			}else{
+				let filestr = fs.readFileSync(path.join(__dirname,"/upload/pdb.txt")).toString();
+				WriteDBList(filestr,version);
+				fs.unlink(path.join(__dirname,"/upload/pdb.txt"),error=>{})
+				resp.send({code:200,message:"success",error:""});
+			}
+		})
 	}
 })
 
