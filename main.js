@@ -69,13 +69,16 @@ fs.exists(__dirname+"/setup.json",exists=>{
 * 25 - 下载出错
 * 26 - 缺少某些必要的文件
 */
+/*
 app.get("/:static?/*",(req, resp, next)=>{
 	const {static = ""} = req.params;
 	if(static == ""){
 		express.static(__dirname + '/html')(req, resp, next);
 		return;
 	}
-})
+})*/
+
+app.get("/*",express.static(__dirname + '/html'));
 
 app.get("/get",(req, resp, next)=>{
 	//判断版本找对应的数据库

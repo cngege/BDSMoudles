@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>pdb.txt上传</title>
+  </head>
+  <body>
+    <h3>方案一</h3>
+    <div>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+          <h2>符号地址上传</h2>
+          <input type="hidden" name="type" value="upload">
+          Token:<input type="password" name="token"> <br/>
+          版本(与BDS对应):<input type="text" name="version" value=""> <br/>
+          文件:<input type="file" name="pdb"> <br/>
+          <input type="submit" value="提交">
+      </form>
+    </div>
+    <hr>
+    <h3>方案二</h3>
+    <div>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+          <h2>符号地址下载(到服务器)</h2>
+          <input type="hidden" name="type" value="download">
+          Token:<input type="password" name="token"> <br/>
+          版本(与BDS对应):<input type="text" name="version" value=""> <br/>
+          URL:<input type="text" name="url" value=""> <br/>
+          <input type="submit" value="提交">
+      </form>
+    </div>
+    <hr>
+    <h3>方案三</h3>
+    <div>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+          <h2>管理员另想办法上传到服务器(这里直接解析)</h2>
+          <b>将pdb.txt文件上传到upload文件夹</b><br/>
+          <input type="hidden" name="type" value="checkfile">
+          Token:<input type="password" name="token"> <br/>
+          版本(与BDS对应):<input type="text" name="version" value=""> <br/>
+          <input type="submit" value="提交并删除">
+      </form>
+    </div>
+  </body>
+</html>

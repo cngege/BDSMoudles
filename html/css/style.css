@@ -1,0 +1,223 @@
+html,body{
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #e0e0ef;
+}
+
+
+button{
+  border: 0;
+  background-color: #448AFF;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  outline: none;
+}
+
+button:hover{
+  background-color: #848AFF;
+}
+
+button:active{
+  background-color: #446AFF;
+}
+
+.input{
+  border-bottom: 2px solid #44bd32;
+  font-size: 17px;
+  caret-color: #4cd137;                            /*输入框 光标颜色*/
+  /* background: #000; */
+}
+
+div.content_box{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 88%;
+  height: 90%;
+  background: #fff;
+}
+
+div.content_box2{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: 95%;
+  height: 90%;
+  /* margin:0 auto; */
+   /* 这颜色应该要取消 */
+  /* background: #e0efef; */
+}
+
+/* 显示版本列表右侧线的 div */
+div.version_box{
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 150px;
+  height: 100%;
+  border-right: 2px solid #afa0a0;
+  /* background: #000; */
+}
+
+div.version_btnlist{
+  margin: 0,auto;
+  width: 80%;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-color: transparent transparent;
+  scrollbar-width: none;
+  scrollbar-track-color: transparent;
+  -ms-scrollbar-track-color: transparent;
+}
+
+/* 滚动条 */
+div.version_btnlist::-webkit-scrollbar
+{
+  width: 0px;
+  height: 1px;
+}
+
+
+div.version_btnlist span{
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: #c3c3c3;
+  margin-bottom: 15px;
+  font-family: "proxima-soft", "Proxima Soft", "Proxima Nova Soft", Helvetica, Arial, sans-serif
+}
+
+
+div.version_btnlist button{
+  width: 100%;
+  height: 35px;
+  margin-bottom: 15px;
+}
+
+
+div.version_btnlist .version_list{
+  width: 100%;
+}
+
+/* 线的右边 */
+
+div.content{
+  position: absolute;
+  top: 0;
+  left: 180px;
+  width: calc(100% - 180px);
+  height: 100%;
+  /* background: #000; */
+}
+
+div.content .makedb,
+div.content .content_version{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  /* background: #000; */
+}
+
+div.content .makedb .makedb_top{
+  text-align: center;
+  border-bottom: 1px solid #000;
+}
+
+div.content .makedb .makedb_top button{
+  width: 100px;
+  height: 30px;
+  margin: 10px 30px 30px 30px;
+}
+
+/* Token Input */
+div.content .makedb .makedb_input{
+  position: static;
+  width: 100%;
+  /* background: #000; */
+}
+
+div.content .makedb .makedb_input .token,
+div.content .makedb .makedb_input .version{
+  width: 100%;
+  display: flex;
+  margin: 15px 0;
+  /* background: #000; */
+}
+
+div.content .makedb .makedb_input .token .token_text,
+div.content .makedb .makedb_input .version .version_text{
+  display: block;
+  width: 100px;
+  height: 35px;
+  font-size: 18px;
+  font-family: "Open Sans",-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Microsoft Yahei",Arial,sans-serif;
+  line-height: 35px;
+}
+
+div.content .makedb .makedb_input .input input{
+  width: 100%;
+  height: 35px;
+  outline: none;
+  border: 0;
+  font-size: 18px;
+  background-color: transparent;
+  /* background: red; */
+}
+
+div.content .makedb .makedb_input .token_input{
+  width: 100%;
+}
+
+/* 创建数据库 页面切换部分 */
+div.content .makedb .makedb_body{
+  position: inherit;
+  width: 100%;
+  margin-top: 10px;
+  height: calc(100% - 71px - 93px - 30px - 10px);
+}
+
+div.content .makedb .makedb_body .upload_box{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background: #000; */
+}
+
+div.content .makedb .makedb_body .upload_box .title{
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  font-size: 14px;
+  font-family: "Open Sans",-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Microsoft Yahei",Arial,sans-serif;
+}
+
+div.content .makedb .makedb_body .upload_box .selectfile
+{
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 50px;
+}
+
+div.content .makedb .makedb_body .upload_box .progress_text{
+  text-align: center;
+}
+
+div.content .makedb .makedb_body .upload_box .upload_btn{
+  text-align: center;
+  margin-top: 50px;
+}
+
+div.content .makedb .makedb_body .upload_box .selectfile button,
+div.content .makedb .makedb_body .upload_box .upload_btn button{
+  width: 150px;
+  height: 35px;
+}
