@@ -7,6 +7,9 @@ html,body{
   background: #e0e0ef;
 }
 
+.noactive{
+  display: none;
+}
 
 button{
   border: 0;
@@ -23,6 +26,12 @@ button:hover{
 
 button:active{
   background-color: #446AFF;
+}
+
+/* 按钮禁用后的样式 */
+button[disabled]{
+  cursor: default;
+  background-color: #7f8fa6;
 }
 
 .input{
@@ -183,7 +192,9 @@ div.content .makedb .makedb_body{
   height: calc(100% - 71px - 93px - 30px - 10px);
 }
 
-div.content .makedb .makedb_body .upload_box{
+div.content .makedb .makedb_body .upload_box,
+div.content .makedb .makedb_body .wget,
+div.content .makedb .makedb_body .analysis{
   position: absolute;
   top: 0;
   left: 0;
@@ -192,7 +203,9 @@ div.content .makedb .makedb_body .upload_box{
   /* background: #000; */
 }
 
-div.content .makedb .makedb_body .upload_box .title{
+div.content .makedb .makedb_body .upload_box .title,
+div.content .makedb .makedb_body .wget .title,
+div.content .makedb .makedb_body .analysis .title{
   width: 100%;
   line-height: 30px;
   text-align: center;

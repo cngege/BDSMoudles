@@ -25,10 +25,10 @@ $(document).ready(function() {
       /* Act on the event */
       var file = $("#fileupload")[0].files[0];
       if(file == undefined || file == ""){
-        alert("请选择上传文件");
+        $("div.content .makedb .makedb_body .upload_box .progress_text").text("你没有选择上传文件:pdb.txt")
         return false;
       }
-
+      $("#upload_btn").attr({"disabled":"disabled"});
       var form = new FormData();
       form.append("pdb", file);
       form.append("type", "upload");
@@ -47,26 +47,55 @@ $(document).ready(function() {
             return myXhr; //xhr对象返回给jQuery使用
         },
         success: function (result) {
-            $("#result").html(result.data);
             if(result.code == 200){
-              $("div.content .makedb .makedb_body .upload_box .progress_text").text("上传成功");
+              $("div.content .makedb .makedb_body .upload_box .progress_text").text($("#version").val() + " 上传成功");
               $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
             }else{
-              $("div.content .makedb .makedb_body .upload_box .progress_text").text("[错误]:"+result.message);
+              $("div.content .makedb .makedb_body .upload_box .progress_text").text("[未成功]:"+result.message);
             }
+            $("#upload_btn").removeAttr('disabled');
+        },
+        error: function(xml,err){
+            $("#upload_btn").removeAttr('disabled');
+            $("div.content .makedb .makedb_body .upload_box .progress_text").text("[出现后端也没有想到的错误]:"+err);
         },
         contentType: false, //必须false才会自动加上正确的Content-Type
         processData: false  //必须false才会避开jQuery对 formdata 的默认处理
     });
     });
+
+    // 上传库 按钮点击后触发
+    $("#upload_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .upload_box").removeClass('noactive');
+      $("div.content .makedb .makedb_body .wget").addClass('noactive');
+      $("div.content .makedb .makedb_body .analysis").addClass('noactive');
+    });
+
+    // 远程下载库 按钮点击后触发
+    $("#wget_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .upload_box").addClass('noactive');
+      $("div.content .makedb .makedb_body .wget").removeClass('noactive');
+      $("div.content .makedb .makedb_body .analysis").addClass('noactive');
+    });
+
+    // 解析库按钮点击后触发
+    $("#analysis_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .upload_box").addClass('noactive');
+      $("div.content .makedb .makedb_body .wget").addClass('noactive');
+      $("div.content .makedb .makedb_body .analysis").removeClass('noactive');
+    });
+
 });
 
 //选择上传文件后触发
 function selectfile(){
-  if($("#fileupload")[0].files[0].name == "pdb.txt"){
+  if($("#fileupload")[0].files[0].name.toLowerCase() == "pdb.txt"){
     $("#fileupload_btn").text($("#fileupload")[0].files[0].name)
   }else{
-    alert("请选择 pdb.txt文件")
+    $("div.content .makedb .makedb_body .upload_box .progress_text").text("请选择 pdb.txt文件");
   }
 
 }

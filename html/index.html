@@ -23,9 +23,9 @@
           <div class="makedb">
             <!-- 分为上下两部分 上面三个按钮 对应三种方案 -->
             <div class="makedb_top">
-              <button type="button" name="button">上传库</button>
-              <button type="button" name="button">远程下载库</button>
-              <button type="button" name="button">解析库</button>
+              <button id="upload_btn" type="button" name="button">上传库</button>
+              <button id="wget_btn" type="button" name="button">远程下载库</button>
+              <button id="analysis_btn" type="button" name="button">解析库</button>
             </div>
             <div class="makedb_input">
               <!-- 口令 -->
@@ -49,7 +49,7 @@
                 <div class="title">上传库 | 从本地选择pdb.txt文件上传至数据库</div>
                 <div class="selectfile">
                   <button type="button" id="fileupload_btn" name="button">点击选择上传文件</button>
-                  <input type="file" id="fileupload" style="display:none" onchange="selectfile()" value="">
+                  <input type="file" id="fileupload" accept=".txt" style="display:none" onchange="selectfile()" value="">
                 </div>
                 <div class="progress_text">上传未开始</div>
                 <div class="upload_btn">
@@ -58,16 +58,16 @@
 
               </div>
               <!-- wget -->
-              <div style="display:none" class="wget">
-
+              <div class="wget noactive">
+                <div class="title">远程下载库 | 从其他服务器下载pdb.txt文件至数据库</div>
               </div>
               <!-- analysis -->
-              <div style="display:none" class="analysis">
-
+              <div class="analysis noactive">
+                <div class="title">解析库 | 从其他程序上传至upload目录下,直接解析到库中</div>
               </div>
             </div>
           </div>
-          <div style="display:none" class="content_version">
+          <div class="content_version noactive">
 
           </div>
         </div>
