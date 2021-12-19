@@ -26,14 +26,14 @@ $(document).ready(function() {
     });
 
     //点击上传按钮了
-    $("#upload_btn").click(function(event) {
+    $("#uploadfile_btn").click(function(event) {
       /* Act on the event */
       var file = $("#fileupload")[0].files[0];
       if(file == undefined || file == ""){
         $("div.content .makedb .makedb_body .upload_box .progress_text").text("你没有选择上传文件:pdb.txt")
         return false;
       }
-      $("#upload_btn").attr({"disabled":"disabled"});
+      $("#uploadfile_btn").attr({"disabled":"disabled"});
       var form = new FormData();
       form.append("pdb", file);
       form.append("type", "upload");
@@ -58,10 +58,10 @@ $(document).ready(function() {
             }else{
               $("div.content .makedb .makedb_body .upload_box .progress_text").text("[未成功]:"+result.message);
             }
-            $("#upload_btn").removeAttr('disabled');
+            $("#uploadfile_btn").removeAttr('disabled');
         },
         error: function(xml,err){
-            $("#upload_btn").removeAttr('disabled');
+            $("#uploadfile_btn").removeAttr('disabled');
             $("div.content .makedb .makedb_body .upload_box .progress_text").text("[出现后端也没有想到的错误]:"+err);
         },
         contentType: false, //必须false才会自动加上正确的Content-Type
