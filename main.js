@@ -221,12 +221,11 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 		})
 	}else if(type=="getcheckfile"){				// 查看 要解析的文件是否存在,及文件信息
 		fs.stat(__dirname+"/upload/pdb.txt",(err,stats)=>{
-	    if(err || !stats.isFIle()){
+	    if(err || !stats.isFile()){
 				// 文件不存在
 				resp.send({code:200,message:"success",exists:false,stats:{},error:""});
 				return;
 			}
-			console.log(stats);
 			resp.send({code:200,message:"success",exists:true,stats:stats,error:""});
 		})
 	}

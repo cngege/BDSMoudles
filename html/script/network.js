@@ -116,7 +116,7 @@ $(document).ready(function() {
         success: function(result){
           if(result.code == 200){
             if(result.exists){
-              $("div.content .makedb .makedb_body .analysis .checkfile_text").text("pdb.txt文件存在");
+              $("div.content .makedb .makedb_body .analysis .checkfile_text").text("pdb.txt文件存在 大小"+(result.stats.size/1000000).toFixed(2)+"MB 创建于"+new Date(result.stats.ctimeMs).toLocaleString());
               $("#analysis_check_btn").removeAttr('disabled');
             }else{
               $("div.content .makedb .makedb_body .analysis .checkfile_text").text("没有在upload文件夹中找到pdb.txt文件");
@@ -137,7 +137,38 @@ $(document).ready(function() {
     });
 
 
+    // 按下了 解析库中的 解析并删除按钮
+    $("#analysis_check_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .analysis .analysis_text").text("开始……");
+      $("#analysis_check_btn").attr({"disabled":"disabled"});
+      var form = new FormData();
+      form.append("type", "checkfile");
+      form.append("token", $("#token").val());
+      form.append("version", $("#version").val());
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: form,
+        success: function(result){
+          if(result.code == 200){
+            //$("div.content .makedb .makedb_body .analysis .checkfile_text")
+            $("div.content .makedb .makedb_body .analysis .analysis_text").text("解析成功");
+            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
+          }else if(result.code == 26){
+            $("div.content .makedb .makedb_body .analysis .analysis_text").text(result.message);
+          }else{
+            $("div.content .makedb .makedb_body .analysis .analysis_text").text("[未成功]:"+result.message);
+          }
+        },
+        error: function(xml,err){
+          $("div.content .makedb .makedb_body .analysis .analysis_text").text("[未知错误]:"+err);
+        },
+        processData: false,
+        contentType: false
+      })
 
+    });
 
 
 
