@@ -91,13 +91,56 @@ $(document).ready(function() {
           $("#wget_download_btn").removeAttr('disabled');
         },
         error: function(xml,err){
-          $("div.content .makedb .makedb_body .wget .progress_text").text("未知错误:"+err);
+          $("div.content .makedb .makedb_body .wget .progress_text").text("[未知错误]:"+err);
           $("#wget_download_btn").removeAttr('disabled');
         },
         processData: false,
         contentType: false
       })
     });
+
+
+    // 按下了 解析库中的 检查文件是否存在按钮
+    $("#checkfile_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .analysis .checkfile_text").text("检查中……");
+      $("#analysis_check_btn").attr({"disabled":"disabled"});
+      var form = new FormData();
+      form.append("type", "getcheckfile");
+      form.append("token", $("#token").val());
+      form.append("version", '0');
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: form,
+        success: function(result){
+          if(result.code == 200){
+            if(result.exists){
+              $("div.content .makedb .makedb_body .analysis .checkfile_text").text("pdb.txt文件存在");
+              $("#analysis_check_btn").removeAttr('disabled');
+            }else{
+              $("div.content .makedb .makedb_body .analysis .checkfile_text").text("没有在upload文件夹中找到pdb.txt文件");
+              $("#analysis_check_btn").attr({"disabled":"disabled"});
+            }
+          }else{
+            $("div.content .makedb .makedb_body .analysis .checkfile_text").text("[查询未成功]:"+result.message);
+          }
+        },
+        error: function(xml,err){
+          $("div.content .makedb .makedb_body .analysis .checkfile_text").text("[未知错误]:"+err);
+          $("#analysis_check_btn").attr({"disabled":"disabled"});
+        },
+        processData: false,
+        contentType: false
+      })
+
+    });
+
+
+
+
+
+
 
     // 上传库 按钮点击后触发
     $("#upload_btn").click(function(event) {

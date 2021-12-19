@@ -215,7 +215,9 @@ div.content .makedb .makedb_body .analysis{
 div.content .makedb .makedb_body .upload_box .title,
 div.content .makedb .makedb_body .wget .title,
 div.content .makedb .makedb_body .analysis .title{
+  margin-bottom: 60px;
   width: 100%;
+  font-weight: bold;
   line-height: 30px;
   text-align: center;
   font-size: 14px;
@@ -225,7 +227,6 @@ div.content .makedb .makedb_body .analysis .title{
 div.content .makedb .makedb_body .upload_box .selectfile
 {
   text-align: center;
-  margin-top: 100px;
   margin-bottom: 50px;
 }
 
@@ -244,7 +245,9 @@ div.content .makedb .makedb_body .wget .wget_download_btn
 
 div.content .makedb .makedb_body .upload_box .selectfile button,
 div.content .makedb .makedb_body .upload_box .upload_btn button,
-div.content .makedb .makedb_body .wget .wget_download_btn button
+div.content .makedb .makedb_body .wget .wget_download_btn button,
+div.content .makedb .makedb_body .analysis .checkfile_btn button,    /* analysis check_btn */
+div.content .makedb .makedb_body .analysis .analysis_btn button      /* analysis checkanddel_btn */
 {
   width: 150px;
   height: 35px;
@@ -253,5 +256,21 @@ div.content .makedb .makedb_body .wget .wget_download_btn button
 /* WGET */
 
 div.content .makedb .makedb_body .wget .url{
-  margin: 50px auto;
+  margin-bottom: 50px;
+}
+
+/* analysis */
+div.content .makedb .makedb_body .analysis .checkfile_text,
+div.content .makedb .makedb_body .analysis .analysis_text{
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  font-family: "Open Sans",-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Microsoft Yahei",Arial,sans-serif;
+}
+
+div.content .makedb .makedb_body .analysis .checkfile_btn,
+div.content .makedb .makedb_body .analysis .analysis_btn
+{
+  text-align: center;
+  margin: 20px auto;
 }

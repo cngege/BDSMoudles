@@ -226,6 +226,7 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 				resp.send({code:200,message:"success",exists:false,stats:{},error:""});
 				return;
 			}
+			console.log(stats);
 			resp.send({code:200,message:"success",exists:true,stats:stats,error:""});
 		})
 	}
