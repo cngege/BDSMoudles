@@ -12,7 +12,7 @@
       <div class="content_box2">
         <div class="version_box">
           <div class="version_btnlist">
-            <button type="button" name="button">建库</button>
+            <button id="makedb_btn" type="button" name="button">建库</button>
             <span>已安装库列表</span>
             <!-- <button type="button" name="button">1.18.0.1</button> -->
             <div class="version_list"></div>
@@ -20,7 +20,7 @@
         </div>
         <!-- 线的右边 -->
         <div class="content">
-          <div class="makedb">
+          <div class="makedb noactive">
             <!-- 分为上下两部分 上面三个按钮 对应三种方案 -->
             <div class="makedb_top">
               <button id="upload_btn" type="button" name="button">上传库</button>
@@ -86,8 +86,24 @@
               </div>
             </div>
           </div>
-          <div class="content_version noactive">
-
+          <div class="content_version" data-version="0">
+            <div class="title">
+              -
+            </div>
+            <div class="symbol_input_box">
+              <div class="symbol_text">输入符号:</div>
+              <div class="symbol_input input">
+                <input id="symbol" type="text" placeholder="?computeTarget@TeleportCommand@@SA?AVTeleportTarget@@AEAVActor@@VVec3@@PEAV4@V?$AutomaticID@VDimension@@H@@VRelativeFloat@@4H@Z">
+              </div>
+            </div>
+            <div class="query_btn">
+              <button id="query_btn" type="button" name="button">查询</button>
+            </div>
+            <div class="call_msg"></div>
+            <div class="query_value">
+              <div class="x10">查询结果[x10]: <span id="x10"></span>-</div>
+              <div class="x16">查询结果[x16]: <span id="x16"><span>-</div>
+            </div>
           </div>
         </div>
       </div>

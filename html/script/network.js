@@ -1,6 +1,3 @@
-var ot; //时间
-var oloaded;//大小
-
 $(document).ready(function() {
     //获取支持的库列表
     $.get(
@@ -11,8 +8,15 @@ $(document).ready(function() {
         /*optional stuff to do after success */
         var vers = data.error.versionlist;
         $.each(vers,(i,item) => {
-          $(".version_list").append($('<button type="button" name="button"></button>').text(item))
+          $(".version_list").append($('<button type="button" name="button"></button>').text(item).attr("onClick","showVerFrom('"+item+"')"))
       });
+    });
+
+    // 点击了 左侧的 建库 按钮
+    $("#makedb_btn").click(function(event) {
+      /* Act on the event */
+      $(".content .makedb").removeClass('noactive');
+      $(".content .content_version").addClass('noactive');
     });
 
     //点击button后代为点击 input file
@@ -50,7 +54,7 @@ $(document).ready(function() {
         success: function (result) {
             if(result.code == 200){
               $("div.content .makedb .makedb_body .upload_box .progress_text").text($("#version").val() + " 上传成功");
-              $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
+              $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()).attr("onClick","showVerFrom('"+$("#version").val()+"')"))
             }else{
               $("div.content .makedb .makedb_body .upload_box .progress_text").text("[未成功]:"+result.message);
             }
@@ -83,7 +87,7 @@ $(document).ready(function() {
         success: function(result){
           if(result.code == 200){
             $("div.content .makedb .makedb_body .wget .progress_text").text($("#version").val() + " 数据库建立成功");
-            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
+            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()).attr("onClick","showVerFrom('"+$("#version").val()+"')"))
 
           }else{
             $("div.content .makedb .makedb_body .wget .progress_text").text("[未成功]:"+result.message);
@@ -154,7 +158,7 @@ $(document).ready(function() {
           if(result.code == 200){
             //$("div.content .makedb .makedb_body .analysis .checkfile_text")
             $("div.content .makedb .makedb_body .analysis .analysis_text").text("解析成功");
-            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
+            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()).attr("onClick","showVerFrom('"+$("#version").val()+"')"))
           }else if(result.code == 26){
             $("div.content .makedb .makedb_body .analysis .analysis_text").text(result.message);
           }else{
@@ -220,4 +224,15 @@ function upload_progressHandlingFunction(e) {
           $("div.content .makedb .makedb_body .upload_box .progress_text").text("上传成功 正在后台解析库中,请稍候……")
         }
     }
+}
+
+
+function showVerFrom(version){
+  $(".content .makedb").addClass('noactive');
+  $(".content .content_version").removeClass('noactive');
+
+  $(".content .content_version .title").text(version); //更新标题
+  $(".content .content_version .call_msg").text('');  //去除返回结果信息
+  $("#x10").text("-");  // 去除旧的查询结果
+  $("#x16").text("-");  // 去除旧的查询结果
 }
