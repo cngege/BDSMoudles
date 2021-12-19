@@ -175,6 +175,37 @@ $(document).ready(function() {
     });
 
 
+    // 查询按钮点击
+    $("#query_btn").click(function(event) {
+      /* Act on the event */
+      $(".content .content_version .call_msg").text('');  //去除返回结果信息
+      $("#x10").text("-");  // 去除旧的查询结果
+      $("#x16").text("-");  // 去除旧的查询结果
+      $("#query_btn").attr({"disabled":"disabled"});
+      $.ajax({
+        url: '/get',
+        type: 'GET',
+        data: {
+          version: $(".content .content_version").attr('data-version'),
+          key: $("#symbol").val() || $("#symbol").attr('placeholder')
+        },
+        success: function(result){
+          if(result.code == 200){
+            //parseInt
+            $("#x10").text(parseInt(result.value).toString());
+            $("#x16").text(result.value)
+          }else{
+            $(".content .content_version .call_msg").text('[查询错误]:'+result.message +"\n"+result.error.toString());
+          }
+          $("#query_btn").removeAttr('disabled');
+        },
+        error: function(xml,err){
+          $(".content .content_version .call_msg").text('[未知错误]:'+err);
+          $("#query_btn").removeAttr('disabled');
+        }
+      })
+
+    });
 
 
     // 上传库 按钮点击后触发
@@ -232,6 +263,7 @@ function showVerFrom(version){
   $(".content .content_version").removeClass('noactive');
 
   $(".content .content_version .title").text(version); //更新标题
+  $(".content .content_version").attr('data-version',version);
   $(".content .content_version .call_msg").text('');  //去除返回结果信息
   $("#x10").text("-");  // 去除旧的查询结果
   $("#x16").text("-");  // 去除旧的查询结果
