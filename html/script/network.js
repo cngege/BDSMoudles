@@ -2,15 +2,16 @@ var ot; //时间
 var oloaded;//大小
 
 $(document).ready(function() {
-  $.get(
-    // 'http://cngege.f3322.net:6789/get',
-    '/get',
-    {"version":"0"},
-    function(data, textStatus, xhr) {
-      /*optional stuff to do after success */
-      var vers = data.error.versionlist;
-      $.each(vers,(i,item) => {
-        $(".version_list").append($('<button type="button" name="button"></button>').text(item))
+    //获取支持的库列表
+    $.get(
+      // 'http://cngege.f3322.net:6789/get',
+      '/get',
+      {"version":"0"},
+      function(data, textStatus, xhr) {
+        /*optional stuff to do after success */
+        var vers = data.error.versionlist;
+        $.each(vers,(i,item) => {
+          $(".version_list").append($('<button type="button" name="button"></button>').text(item))
       });
     });
 
@@ -62,6 +63,40 @@ $(document).ready(function() {
         contentType: false, //必须false才会自动加上正确的Content-Type
         processData: false  //必须false才会避开jQuery对 formdata 的默认处理
     });
+    });
+
+
+    // 点击远程下载按钮了
+    $("#wget_download_btn").click(function(event) {
+      /* Act on the event */
+      $("div.content .makedb .makedb_body .wget .progress_text").text("开始下载,请稍后……");
+      $("#wget_download_btn").attr({"disabled":"disabled"});
+      var form = new FormData();
+      form.append("type", "download");
+      form.append("token", $("#token").val());
+      form.append("version", $("#version").val());
+      form.append("url", $("#url").val());
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: form,
+        success: function(result){
+          if(result.code == 200){
+            $("div.content .makedb .makedb_body .wget .progress_text").text($("#version").val() + " 数据库建立成功");
+            $(".version_list").append($('<button type="button" name="button"></button>').text($("#version").val()))
+
+          }else{
+            $("div.content .makedb .makedb_body .wget .progress_text").text("[未成功]:"+result.message);
+          }
+          $("#wget_download_btn").removeAttr('disabled');
+        },
+        error: function(xml,err){
+          $("div.content .makedb .makedb_body .wget .progress_text").text("未知错误:"+err);
+          $("#wget_download_btn").removeAttr('disabled');
+        },
+        processData: false,
+        contentType: false
+      })
     });
 
     // 上传库 按钮点击后触发

@@ -38,14 +38,14 @@
               <!-- 版本 -->
               <div class="version">
                 <div class="version_text">输入版本:</div>
-                <div class="token_input input">
+                <div class="version_input input">
                   <input id="version" type="text" placeholder="和BDS版本对应">
                 </div>
               </div>
             </div>
             <div class="makedb_body">
               <!-- upload -->
-              <div style="" class="upload_box">
+              <div style="" class="upload_box noactive">
                 <div class="title">上传库 | 从本地选择pdb.txt文件上传至数据库</div>
                 <div class="selectfile">
                   <button type="button" id="fileupload_btn" name="button">点击选择上传文件</button>
@@ -60,10 +60,24 @@
               <!-- wget -->
               <div class="wget noactive">
                 <div class="title">远程下载库 | 从其他服务器下载pdb.txt文件至数据库</div>
+                <!-- url -->
+                <div class="url">
+                  <div class="url_text">输入链接:</div>
+                  <div class="url_input input">
+                    <input id="url" type="text" placeholder="pdb.txt 下载直链">
+                  </div>
+                </div>
+                <div class="progress_text">点击按钮后开始下载</div>
+                <div class="wget_download_btn">
+                  <button id="wget_download_btn" type="button" name="button">远端下载</button>
+                </div>
               </div>
               <!-- analysis -->
-              <div class="analysis noactive">
+              <div class="analysis">
                 <div class="title">解析库 | 从其他程序上传至upload目录下,直接解析到库中</div>
+                <div class="checkfile_btn">
+                  <button id="checkfile_btn" type="button" name="button">检查文件是否存在</button>
+                </div>
               </div>
             </div>
           </div>

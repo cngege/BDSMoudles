@@ -105,7 +105,7 @@ app.get("/get",(req, resp, next)=>{
 			else{
 				ticktime[version]['time'] = Date.now() + (30 * 1000);
 			}
-			
+
 			if(key!= ''){
 				leveldb[version].get(key,(err,v)=>{
 					if(err){
@@ -169,7 +169,7 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 		resp.send({code:23,message:"此版本可能已经有一个上传或下载任务了",error:""});
 		return;
 	}
-	
+
 	if(type == "upload"){
 		var file = req.file;
 		if(file.originalname == "pdb.txt"){
@@ -218,6 +218,15 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 				fs.unlink(path.join(__dirname,"/upload/pdb.txt"),error=>{})
 				resp.send({code:200,message:"success",error:""});
 			}
+		})
+	}else if(type=="getcheckfile"){				// 查看 要解析的文件是否存在,及文件信息
+		fs.stat(__dirname+"/upload/pdb.txt",(err,stats)=>{
+	    if(err || !stats.isFIle()){
+				// 文件不存在
+				resp.send({code:200,message:"success",exists:false,stats:{},error:""});
+				return;
+			}
+			resp.send({code:200,message:"success",exists:true,stats:stats,error:""});
 		})
 	}
 })
