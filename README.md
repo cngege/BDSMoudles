@@ -98,3 +98,6 @@ pdb.txt文件是管理者需要在服务端更新的时候,手动生成符号地
 ### 公开接口
 
 如果你希望你的接口被任何人使用,那便克隆这个项目到你自己的仓库中，仿照`docs/apis.json`文件添加你自己的接口，然后提交PR,或者直接在我的项目中`https://github.com/cngege/BDSMoudles/issues`提交issues，附上你的接口地址等信息
+
+### 目前UI (旧版访问：/index2.html)
+<div align=center><img src="https://raw.githubusercontent.com/cngege/BDSMoudles/main/ReadMeImage/ui.png" width="800px"/></div>
