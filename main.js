@@ -152,21 +152,25 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 	const { token = '',version = '', type = "", url = ""} = req.body;
 	if(token != setup.token){
 		resp.send({code:20,message:"token error",error:""});
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		return;
 	}
 	if(version == "" || type == ""){
 		resp.send({code:21,message:"某个必填参数未赋值",error:""});
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		return;
 	}
 	for(i=0;i<setup.versions.length;i++){
 		if(version == setup.versions[i]){
 			//表示存在
 			resp.send({code:22,message:"database "+version+" exists",error:""});
+			fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 			return;
 		}
 	}
 	if(leveldb[version] != null){
 		resp.send({code:23,message:"此版本可能已经有一个上传或下载任务了",error:""});
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		return;
 	}
 
@@ -177,10 +181,11 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 			let filestr = fs.readFileSync(file.path).toString();
 			WriteDBList(filestr,version);
 			resp.send({code:200,message:"success",error:""});
-			fs.unlink(file.path,error=>{})
+			fs.unlinkSync(file.path)
 		}
 		else{
 			resp.send({code:21,message:file.originalname+" error",error:""});
+			fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		}
 		/*
 		{
@@ -195,6 +200,7 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 		}
 		*/
 	}else if(type=="download"){
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		if(url){
 			var savename = new Date().getTime();
 			request.get(url,function(error,res,body){
@@ -209,17 +215,19 @@ app.post("/upload",upload.single('pdb'),(req, resp, next)=>{
 			resp.send({code:21,message:"某个必填参数未赋值",error:""});
 		}
 	}else if(type=="checkfile"){		//方案三 其他方式上传-解析
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		fs.exists(__dirname+"/upload/pdb.txt",exists=>{
 			if(!exists){
 				resp.send({code:26,message:"文件{/upload/pdb.txt}不存在",error:""});
 			}else{
 				let filestr = fs.readFileSync(path.join(__dirname,"/upload/pdb.txt")).toString();
 				WriteDBList(filestr,version);
-				fs.unlink(path.join(__dirname,"/upload/pdb.txt"),error=>{})
+				fs.unlinkSync(path.join(__dirname,"/upload/pdb.txt"))
 				resp.send({code:200,message:"success",error:""});
 			}
 		})
 	}else if(type=="getcheckfile"){				// 查看 要解析的文件是否存在,及文件信息
+		fs.exists(req.file.path,exists=>{if(exists)fs.unlinkSync(req.file.path)})
 		fs.stat(__dirname+"/upload/pdb.txt",(err,stats)=>{
 	    if(err || !stats.isFile()){
 				// 文件不存在
