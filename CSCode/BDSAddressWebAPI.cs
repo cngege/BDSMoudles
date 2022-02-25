@@ -31,58 +31,136 @@ namespace BDSAddrApi
 
             string symbolsstr = string.Join(",", symbols);                          //将符号数组拼接成字符串以便查询
             JavaScriptSerializer apisjson = new JavaScriptSerializer();             //实例化一个API列表的JSON对象
-            
-            if (option.symbol_save)
+
+            using (var mutex = new Mutex(false, "BDSAddressWebAPI"))
             {
-                if (!File.Exists(option.tmppath + VERSION + ".json"))
+                //如果option.symbol_save 是false 即表示符号不在本地存储 不进行获取互斥锁，表示直接为true,后面直接通行
+                bool hasHandle = option.symbol_save?mutex.WaitOne(50*1000, false):true;
+                if (!hasHandle)
                 {
-                    File.Create(option.tmppath + VERSION + ".json").Close();
+                    addrs = null;
+                    return false;       //执行到这里面表示 互斥锁获取超时
                 }
-                else
+
+                #region 处理符号部分
+                if (option.symbol_save)
                 {
-                    string symbolstr = File.ReadAllText(option.tmppath + VERSION + ".json");
-                    if (!String.IsNullOrEmpty(symbolstr))
+                    if (!File.Exists(option.tmppath + "V" + VERSION + ".json"))
                     {
-                        JavaScriptSerializer symboljson = new JavaScriptSerializer();           //实例化一个从本地查询符号地址的Json对象
-                        dynamic obj = symboljson.Deserialize<dynamic>(symbolstr);
-                        int state = 0;
-                        string[] addr = new string[symbols.Length];
-                        for (int i = 0; i < symbols.Length; i++)
+                        File.Create(option.tmppath + "V" + VERSION + ".json").Close();
+                    }
+                    else
+                    {
+                        string symbolstr = File.ReadAllText(option.tmppath + "V" + VERSION + ".json");
+                        if (!String.IsNullOrEmpty(symbolstr))
                         {
-                            if (!IsPropertyExist(obj, symbols[i]) || string.IsNullOrEmpty(obj[symbols[i]]))
+                            JavaScriptSerializer symboljson = new JavaScriptSerializer();           //实例化一个从本地查询符号地址的Json对象
+                            dynamic obj = symboljson.Deserialize<dynamic>(symbolstr);
+                            int state = 0;
+                            string[] addr = new string[symbols.Length];
+                            for (int i = 0; i < symbols.Length; i++)
                             {
-                                //远程获取
-                                state = 1;
-                                break;
+                                if (!IsPropertyExist(obj, symbols[i]) || string.IsNullOrEmpty(obj[symbols[i]]))
+                                {
+                                    //远程获取
+                                    state = 1;
+                                    break;
+                                }
+                                addr[i] = obj[symbols[i]];
                             }
-                            addr[i] = obj[symbols[i]];
+                            if (state == 0) //在本地已经全部读取成功
+                            {
+                                mutex.ReleaseMutex();
+                                addrs = addr;
+                                return true;
+                            }
                         }
-                        if (state == 0) //
+                    }
+                }
+
+                if (option.localapiinfo && File.Exists(option.tmppath + "api.txt"))
+                {
+                    localapi = File.ReadAllText(option.tmppath + "api.txt").Trim();
+                    //如果本地存储的api获取失败,则远程重新获取并选择一个有效的获取地址并保存本地
+                    BackAddrData address = GetAddressInfoOFAPI(String.Format("{0}?version={1}&{2}={3}", localapi, VERSION, (symbols.Length == 1) ? "key" : "keys", symbolsstr));
+                    if (address != null)
+                    {
+                        if (address.code == 1)
                         {
-                            addrs = addr;
+                            if(option.symbol_save) mutex.ReleaseMutex();
+                            addrs = null;
+                            return false;                                               //要提示检查key是否正确,并稍候重试
+                        }
+                        else if (address.code == 200)
+                        {
+
+                            if (symbols.Length == 1)
+                            {
+                                addrs = new string[] { address.value };
+                            }
+                            else
+                            {
+                                addrs = address.values.ToArray<string>();
+                            }
+                            if (option.symbol_save)
+                            {
+                                JavaScriptSerializer symboljson = new JavaScriptSerializer();           //实例化一个从本地查询符号地址的Json对象
+                                for (int i = 0; i < 200; i++)
+                                {
+                                    FileStream stream = null;
+                                    try
+                                    {
+                                        stream = new FileStream(option.tmppath + "V" + VERSION + ".json", FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+                                    }
+                                    catch
+                                    {
+                                        stream?.Close();
+                                        Thread.Sleep(100);
+                                        continue;
+                                    }
+                                    string symstr = ReadAllTextFromStream(stream);
+                                    if (string.IsNullOrEmpty(symstr))
+                                    {
+                                        symstr = "{}";
+                                    }
+                                    dynamic symjson = symboljson.Deserialize<dynamic>(symstr);
+                                    for (int j = 0; j < symbols.Length; j++)
+                                    {
+                                        symjson[symbols[j]] = addrs[j];
+                                    }
+                                    symstr = symboljson.Serialize(symjson);
+                                    byte[] b = Encoding.UTF8.GetBytes(symstr);
+                                    stream.Write(b, 0, b.Length);
+                                    stream.Close();
+                                    break;
+                                }
+                            }
+                            if (option.symbol_save) mutex.ReleaseMutex();
                             return true;
                         }
                     }
                 }
-            }
-
-
-
-            if (option.localapiinfo && File.Exists(option.tmppath + "api.txt"))
-            {
-                localapi = File.ReadAllText(option.tmppath + "api.txt").Trim();
-                //如果本地存储的api获取失败,则远程重新获取并选择一个有效的获取地址并保存本地
-                BackAddrData address = GetAddressInfoOFAPI(String.Format("{0}?version={1}&{2}={3}", localapi, VERSION,(symbols.Length == 1)?"key": "keys", symbolsstr));
-                if (address != null)
+                string apisjsonstr = getHttpData(APIURLs);                        //通过Web查询 获取API节点
+                if (String.IsNullOrEmpty(apisjsonstr))
                 {
-                    if (address.code == 1)
+                    if (option.symbol_save) mutex.ReleaseMutex();
+                    addrs = null;
+                    return false;
+                }
+                List<Apilist> apijson = apisjson.Deserialize<List<Apilist>>(apisjsonstr);
+                foreach (var item in apijson)
+                {
+                    if (option.localapiinfo && item.url == localapi)
                     {
-                        addrs = null;
-                        return false;                                               //要提示检查key是否正确,并稍候重试
+                        continue;
                     }
-                    else if (address.code == 200)
+                    BackAddrData address = GetAddressInfoOFAPI(String.Format("{0}?version={1}&{2}={3}", item.url, VERSION, (symbols.Length == 1) ? "key" : "keys", symbolsstr));
+                    if (address == null)
                     {
-                        
+                        continue;
+                    }
+                    if (address.code == 200)
+                    {
                         if (symbols.Length == 1)
                         {
                             addrs = new string[] { address.value };
@@ -99,7 +177,7 @@ namespace BDSAddrApi
                                 FileStream stream = null;
                                 try
                                 {
-                                    stream = new FileStream(option.tmppath + VERSION + ".json", FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+                                    stream = new FileStream(option.tmppath + "V" + VERSION + ".json", FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
                                 }
                                 catch
                                 {
@@ -124,90 +202,31 @@ namespace BDSAddrApi
                                 break;
                             }
                         }
+                        if (option.localapiinfo) File.WriteAllText(option.tmppath + "api.txt", item.url);
+                        if (option.symbol_save) mutex.ReleaseMutex();
                         return true;
+                        //写本地
                     }
-                }
-            }
-            string apisjsonstr = getHttpData(APIURLs);                        //通过Web查询 获取API节点
-            if (String.IsNullOrEmpty(apisjsonstr))
-            {
-                addrs = null;
-                return false;
-            }
-            List<Apilist> apijson = apisjson.Deserialize<List<Apilist>>(apisjsonstr);
-            foreach (var item in apijson)
-            {
-                if (option.localapiinfo && item.url == localapi)
-                {
-                    continue;
-                }
-                BackAddrData address = GetAddressInfoOFAPI(String.Format("{0}?version={1}&{2}={3}", item.url, VERSION, (symbols.Length == 1) ? "key" : "keys", symbolsstr));
-                if (address == null)
-                {
-                    continue;
-                }
-                if (address.code == 200)
-                {
-                    if (symbols.Length == 1)
+                    if (address.code == 1)
                     {
-                        addrs = new string[] { address.value };
+                        //写本地
+                        if (option.localapiinfo) File.WriteAllText(option.tmppath + "api.txt", item.url);
+                        if (option.symbol_save) mutex.ReleaseMutex();
+                        addrs = null;
+                        return false;                                               //要提示检查key是否正确,并稍候重试
                     }
                     else
                     {
-                        addrs = address.values.ToArray<string>();
+                        continue;
                     }
-                    if (option.symbol_save)
-                    {
-                        JavaScriptSerializer symboljson = new JavaScriptSerializer();           //实例化一个从本地查询符号地址的Json对象
-                        for (int i = 0; i < 200; i++)
-                        {
-                            FileStream stream = null;
-                            try
-                            {
-                                stream = new FileStream(option.tmppath + VERSION + ".json", FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
-                            }
-                            catch
-                            {
-                                stream?.Close();
-                                Thread.Sleep(100);
-                                continue;
-                            }
-                            string symstr = ReadAllTextFromStream(stream);
-                            if (string.IsNullOrEmpty(symstr))
-                            {
-                                symstr = "{}";
-                            }
-                            dynamic symjson = symboljson.Deserialize<dynamic>(symstr);
-                            for (int j = 0; j < symbols.Length; j++)
-                            {
-                                symjson[symbols[j]] = addrs[j];
-                            }
-                            symstr = symboljson.Serialize(symjson);
-                            byte[] b = Encoding.UTF8.GetBytes(symstr);
-                            stream.Write(b, 0, b.Length);
-                            stream.Close();
-                            break;
-                        }
-                    }
-                    if (option.localapiinfo) File.WriteAllText(option.tmppath + "api.txt", item.url);
-                    return true;
-                    //写本地
+
                 }
-                if (address.code == 1)
-                {
-                    //写本地
-                    if(option.localapiinfo) File.WriteAllText(option.tmppath + "api.txt", item.url);
-                    addrs = null;
-                    return false;                                               //要提示检查key是否正确,并稍候重试
-                }
-                else
-                {
-                    continue;
-                }
+                if (option.symbol_save) mutex.ReleaseMutex();
+                addrs = null;
+                return false;                                                       //要提示检查key是否正确,并稍候重试
+                #endregion
 
             }
-            addrs = null;
-            return false;                                                       //要提示检查key是否正确,并稍候重试
         }
 
         static String ReadAllTextFromStream(FileStream stream)
@@ -292,6 +311,11 @@ namespace BDSAddrApi
         /// 优先从本地库文件读取符号地址，如果没有则远程获取，获取之后再保存在本地<br/>一来节约云端资源，二来提高读取成功率，加快读取速度,即使云端服务器短时间出了问题,也不会影响插件的使用
         /// </summary>
         public bool symbol_save = true;
+
+        /// <summary>
+        /// 互斥锁超时时间 默认50秒 单位毫秒
+        /// </summary>
+        public int mutex_wait_time = 50 * 1000;
     }
 
 
@@ -310,4 +334,6 @@ namespace BDSAddrApi
         public List<string> values { get; set; }
         public object error { get; set; }
     }
+
+    
 }
