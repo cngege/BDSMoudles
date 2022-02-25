@@ -68,4 +68,5 @@
    //直到这个API访问失败再从apis.json找到可用的api使用并再次保存在本地
    //option tmppath string(plugins\\BDSAddressApi\\),相关信息保存在本地时的路径
    //option symbol_save bool(默认true) : 远程获取地址后将保存在本地,本地已存在要请求的地址的话将直接尝试从本地加载,不走网络
+   //option mutex_wait_time int(默认50*1000) : 互斥锁超时时间 默认50秒 单位毫秒
 ```
