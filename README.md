@@ -1,4 +1,7 @@
 ﻿# BDSMoudles
+ 
+> **注意：因项目站点没人使用,故停掉了，有此需求可自行搭建**
+
 > BDS模块符号地址映射及WEB查询
 
 ## 这是什么:
@@ -23,16 +26,16 @@ BDS服务端更新后插件不需要更新
 ## 我该怎么使用这个接口:
 首先你需要三个信息
 
-* 已知的接口 比如: `http://cngege.f3322.net:6789/`
+* 已知的接口 比如（停用中）: `http://cngege.f3322.net:6789/`
 * BDS版本 比如: `1.18.0.02`
 * 你要查询地址的符号信息 比如: `??_EBottleItem@@UEAAPEAXI@Z` 和 `??_EKnockbackRoarGoal@@UEAAPEAXI@Z`
 
 将你的接口后面加上get，比如:`http://cngege.f3322.net:6789/get`,使用参数`version`指定要查询的版本,使用参数`key`查询单个符号地址，或者使用参数`keys`查询多个符号地址,每个符号地址使用`,`隔开
 比如:
 
-`http://cngege.f3322.net:6789/get?version=1.18.0.02&key=??_EBottleItem@@UEAAPEAXI@Z`
+（停用中）`http://cngege.f3322.net:6789/get?version=1.18.0.02&key=??_EBottleItem@@UEAAPEAXI@Z`
 
-`http://cngege.f3322.net:6789/get?version=1.18.0.02&keys=??_EBottleItem@@UEAAPEAXI@Z,??_EKnockbackRoarGoal@@UEAAPEAXI@Z`
+（停用中）`http://cngege.f3322.net:6789/get?version=1.18.0.02&keys=??_EBottleItem@@UEAAPEAXI@Z,??_EKnockbackRoarGoal@@UEAAPEAXI@Z`
 
 返回code 为 200时查询成功, 返回其他值则看 message 以定位是什么错误
 
