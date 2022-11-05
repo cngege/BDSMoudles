@@ -1,12 +1,1 @@
-[
-	{
-		"url": "http://cngege.f3322.net:12345/get",
-		"manager" : "cngege/muzili",
-		"home": "https://github.com/cngege/BDSMoudles.git"
-	},
-	{
-		"url": "http://cn-js-zj-bgp.c5mc.cn:12312/get",
-		"manager": "cngege/muzili",
-		"home": "https://github.com/cngege/BDSMoudles.git"
-	}
-]
+[]
